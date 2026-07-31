@@ -71,14 +71,6 @@ Run the Streamlit app
 streamlit run app.py
 ```
 
----
-
-## 📸 Sample Image
-
-A sample image (`cat.jpg`) is included for testing.
-
----
-
 ## 🌐 Live Demo
 
 🔗 **Streamlit App**
@@ -87,7 +79,7 @@ Add your deployed Streamlit link here after deployment.
 
 Example:
 
-https://image-editor-opencv.streamlit.app
+[https://image-editor-opencv.streamlit.app](http://image-editor-opencv-9awzljfg9izdvbej9nkx7q.streamlit.app/)
 
 ---
 
