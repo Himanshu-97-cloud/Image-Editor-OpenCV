@@ -1,62 +1,72 @@
+# app.py
 import streamlit as st
 import cv2
 import numpy as np
+import main  # import your toolbox
 
-st.title("**🖼️ Image Filters App**")
+st.title("🖼️ Image Editor (Photoshop Clone)")
 
-# File uploader
 uploaded_file = st.file_uploader(
     "Upload an image", 
-    type=["jpg", "jpeg", "png"], 
+    type=["jpg","jpeg","png"], 
     key="uploader1"
 )
 
 if uploaded_file is not None:
-    # Read image
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, 1)
 
-    # Show original image
     st.image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), caption="Original Image")
 
-    # Buttons for filters
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    # col4, col5, col6 = st.columns(3)
+    st.sidebar.title("Edit Options")
 
-    output_img = None
-    action = None
+    # Resize
+    if st.sidebar.checkbox("Resize", key="resize"):
+        w = st.sidebar.slider("Width", 50, 1000, image.shape[1], key="resize_w")
+        h = st.sidebar.slider("Height", 50, 1000, image.shape[0], key="resize_h")
+        resized = main.img_resize(image, w, h)
+        st.image(cv2.cvtColor(resized, cv2.COLOR_BGR2RGB), caption="Resized Image")
 
-    if col1.button("Gaussian Blur"):
-        output_img = cv2.GaussianBlur(image, (5, 5), 3)
-        action = "Gaussian Blur"
+    # Crop
+    if st.sidebar.checkbox("Crop", key="crop"):
+        startX = st.sidebar.slider("Start X", 0, image.shape[1], 0, key="crop_x1")
+        endX = st.sidebar.slider("End X", 0, image.shape[1], image.shape[1], key="crop_x2")
+        startY = st.sidebar.slider("Start Y", 0, image.shape[0], 0, key="crop_y1")
+        endY = st.sidebar.slider("End Y", 0, image.shape[0], image.shape[0], key="crop_y2")
+        cropped = main.img_crop(image, startY, endY, startX, endX)
+        st.image(cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB), caption="Cropped Image")
 
-    if col2.button("Median Blur"):
-        output_img = cv2.medianBlur(image, 5)
-        action = "Median Blur"
+    # Rotate
+    if st.sidebar.checkbox("Rotate", key="rotate"):
+        angle = st.sidebar.slider("Angle", -180, 180, 0, key="rotate_angle")
+        rotated = main.img_rotate(image, angle)
+        st.image(cv2.cvtColor(rotated, cv2.COLOR_BGR2RGB), caption="Rotated Image")
 
-    if col3.button("Bilateral Filter"):
-        output_img = cv2.bilateralFilter(image, d=5, sigmaColor=75, sigmaSpace=75)
-        action = "Bilateral Filter"
+    # Flip
+    if st.sidebar.checkbox("Flip", key="flip"):
+        flip_mode = st.sidebar.selectbox("Flip Mode", ["Horizontal", "Vertical", "Both"], key="flip_mode")
+        mode_map = {"Horizontal": 1, "Vertical": 0, "Both": -1}
+        flipped = main.img_flip(image, mode_map[flip_mode])
+        st.image(cv2.cvtColor(flipped, cv2.COLOR_BGR2RGB), caption="Flipped Image")
 
-    if col4.button("Sharpening Image"):
-        kernel = np.array([[0, -1, 0],
-                           [-1, 5, -1],
-                           [0, -1, 0]], dtype=np.float32)
-        output_img = cv2.filter2D(image, -1, kernel)
-        action = "Sharpen"
+    # Brightness & Contrast
+    if st.sidebar.checkbox("Brightness/Contrast", key="bc"):
+        alpha = st.sidebar.slider("Contrast", 0.5, 3.0, 1.0, key="contrast")
+        beta = st.sidebar.slider("Brightness", -100, 100, 0, key="brightness")
+        adjusted = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+        st.image(cv2.cvtColor(adjusted, cv2.COLOR_BGR2RGB), caption="Adjusted Image")
 
-    if col5.button("Canny Edge Detection"):
-        output_img = cv2.Canny(image, 150, 160)
-        action = "Canny Edge Detection"
+    # Grayscale
+    if st.sidebar.checkbox("Grayscale", key="gray"):
+        gray = main.img_grayscale(image)
+        st.image(gray, caption="Grayscale", channels="GRAY")
 
-    if col6.button("Threshold Image"):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        _, output_img = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-        action = "Thresholding"
+    # HSV
+    if st.sidebar.checkbox("HSV", key="hsv"):
+        hsv = main.img_hsv(image)
+        st.image(hsv, caption="HSV", channels="HSV")
 
-    # Show output image if any button clicked
-    if output_img is not None:
-        if len(output_img.shape) == 2:  # grayscale or edge maps
-            st.image(output_img, caption=f"{action} Result", channels="GRAY")
-        else:
-            st.image(cv2.cvtColor(output_img, cv2.COLOR_BGR2RGB), caption=f"{action} Result")
+    # Save
+    if st.sidebar.button("Save Edited Image", key="save"):
+        main.img_save(image, "edited_image.jpg")
+        st.success("Image saved as edited_image.jpg")
