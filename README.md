@@ -75,7 +75,7 @@ streamlit run app.py
 
 🔗 **Streamlit App**
 
-[https://image-editor-opencv.streamlit.app](http://image-editor-opencv-9awzljfg9izdvbej9nkx7q.streamlit.app/)
+https://image-editor-opencv-acvfus4mkqpzijmrtzcmsk.streamlit.app/
 
 ---
 
