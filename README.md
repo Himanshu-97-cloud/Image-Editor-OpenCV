@@ -50,7 +50,7 @@ Image-Editor-OpenCV/
 Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/Image-Editor-OpenCV.git
+git clone https://github.com/Himanshu-97-cloud/Image-Editor-OpenCV.git
 ```
 
 Move into the folder
